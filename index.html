@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indah Phone | Gadget Store Modern Bangsri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        /* Base Styles */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+            color: white; 
+            scroll-behavior: smooth; 
+            overflow-x: hidden;
+        }
+        
+        .glass { 
+            background: rgba(255, 255, 255, 0.03); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+        
+        .gradient-text { 
+            background: linear-gradient(90deg, #38bdf8, #818cf8); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+        
+        .card-hover:hover { 
+            transform: translateY(-5px); 
+            border-color: rgba(56, 189, 248, 0.5); 
+            box-shadow: 0 10px 30px -10px rgba(56, 189, 248, 0.3); 
+        }
+
+        /* === ANIMASI CUSTOM === */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover {
+            color: #60a5fa !important;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-animate { animation: fadeInUp 0.8s ease-out forwards; }
+        .hero-animate-delay { animation: fadeInUp 0.8s ease-out 0.2s forwards; opacity: 0; }
+        .hero-animate-delay-2 { animation: fadeInUp 0.8s ease-out 0.4s forwards; opacity: 0; }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+            will-change: opacity, transform;
+        }
+        .reveal-on-scroll.is-visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+        .reveal-delay-4 { transition-delay: 0.4s; }
+
+        .card-animate {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        .card-animate:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(56, 189, 248, 0.8);
+            box-shadow: 0 20px 40px -15px rgba(56, 189, 248, 0.4);
+        }
+
+        .btn-glow {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-glow:hover::before { left: 100%; }
+        .btn-glow:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
+        }
+        .btn-glow:active { transform: translateY(-1px); }
+
+        .footer-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        .footer-animate.is-visible { opacity: 1; transform: translateY(0); }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        .icon-float { animation: float 6s ease-in-out infinite; }
+
+        section { scroll-margin-top: 100px; }
+        
+        /* Toast Notification Style */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateX(200%);
+            transition: transform 0.3s ease;
+        }
+        #toast.show { transform: translateX(0); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-msg">Membuka WhatsApp...</span>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 glass px-6 py-4 flex justify-between items-center">
+        <div class="text-xl font-bold tracking-tighter uppercase hero-animate">
+            INDAH<span class="gradient-text">PHONE</span>
+        </div>
+        <div class="hidden md:flex space-x-8 text-sm font-medium opacity-80">
+            <span onclick="waInquiry('katalog')" class="nav-link">Katalog</span>
+            <span onclick="waInquiry('tukar-tambah')" class="nav-link">Tukar Tambah</span>
+            <span onclick="scrollToSection('lokasi')" class="nav-link">Lokasi</span>
+        </div>
+        <button onclick="waChat('Halo Indah Phone, saya ingin bertanya tentang produk...')" class="btn-glow bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-full text-sm font-semibold transition flex items-center gap-2 border-none">
+            <i class="fab fa-whatsapp"></i> Chat Admin
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative px-6 pt-24 pb-32 text-center overflow-hidden">
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full -z-10"></div>
+        
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight hero-animate">
+            Gadget Mewah, <br><span class="gradient-text text-shadow-sm">Harga Ramah.</span>
+        </h1>
+        
+        <p class="max-w-2xl mx-auto text-gray-400 text-lg mb-10 leading-relaxed hero-animate-delay">
+            Pusat jual beli & tukar tambah HP original di Bangsri, Jepara. Kondisi jujur, garansi terjamin, dan harga paling kompetitif.
+        </p>
+        
+        <div class="flex flex-col sm:flex-row justify-center gap-4 hero-animate-delay-2">
+            <button onclick="waChat('Halo, saya mau cek stok HP yang tersedia hari ini.')" class="btn-glow bg-white text-black px-8 py-4 rounded-2xl font-bold hover:scale-105 transition shadow-lg shadow-white/5 text-center border-none">
+                Cek Stok Hari Ini
+            </button>
+            <button onclick="waInquiry('tukar-tambah')" class="btn-glow glass px-8 py-4 rounded-2xl font-bold hover:bg-white/10 transition text-center border border-white/20">
+                Estimasi Tukar Tambah
+            </button>
+        </div>
+    </section>
+
+    <!-- Katalog Section -->
+    <section id="katalog" class="px-6 py-20 max-w-6xl mx-auto reveal-on-scroll">
+        <h2 class="text-3xl font-bold mb-10 flex items-center gap-3">
+            Pilih Koleksi <span class="h-1 w-12 bg-blue-500 rounded-full mt-2"></span>
+        </h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Card iPhone -->
+            <div onclick="waInquiry('iPhone Series')" class="md:col-span-2 glass p-10 rounded-[2.5rem] flex flex-col justify-end min-h-[350px] card-hover transition-all cursor-pointer group relative overflow-hidden card-animate reveal-on-scroll reveal-delay-1">
+                <i class="fab fa-apple text-[120px] absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-all group-hover:scale-110 icon-float"></i>
+                <div class="relative z-10">
+                    <span class="bg-blue-500/20 text-blue-400 text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">Premium Collection</span>
+                    <h3 class="text-4xl font-bold mb-2">iPhone Series</h3>
+                    <p class="text-gray-400 max-w-sm">Tersedia unit iBox & Internasional dengan kondisi fisik 98-99% mulus.</p>
+                </div>
+            </div>
+
+            <!-- Card Android -->
+            <div onclick="waInquiry('Android')" class="glass p-10 rounded-[2.5rem] flex flex-col justify-end min-h-[350px] card-hover transition-all cursor-pointer group relative overflow-hidden border-green-500/10 card-animate reveal-on-scroll reveal-delay-2">
+                <i class="fas fa-robot text-8xl absolute -top-4 -right-4 opacity-5 group-hover:opacity-10 transition-all group-hover:scale-110 text-green-500 icon-float"></i>
+                <div class="relative z-10">
+                    <h3 class="text-3xl font-bold mb-2">Android</h3>
+                    <p class="text-gray-400">Flagship Samsung, Oppo, Vivo hingga seri gaming paling gahar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6">
+            <div onclick="waInquiry('garansi')" class="glass p-8 rounded-[2rem] flex items-center gap-6 hover:bg-white/5 transition card-hover border-white/5 card-animate reveal-on-scroll reveal-delay-1">
+                <div class="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400 text-xl">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold">Garansi Toko</h4>
+                    <p class="text-sm text-gray-500">Unit Aman & Terjamin</p>
+                </div>
+            </div>
+            
+            <div id="tukar-tambah" onclick="waInquiry('tukar-tambah')" class="glass p-8 rounded-[2rem] flex items-center gap-6 hover:bg-white/5 transition card-hover border-white/5 card-animate reveal-on-scroll reveal-delay-2">
+                <div class="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center text-purple-400 text-xl">
+                    <i class="fas fa-sync-alt"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold">Trade-In</h4>
+                    <p class="text-sm text-gray-500">Tukar Tambah Harga Tinggi</p>
+                </div>
+            </div>
+            
+            <div onclick="waInquiry('service')" class="glass p-8 rounded-[2rem] flex items-center gap-6 hover:bg-white/5 transition card-hover border-white/5 card-animate reveal-on-scroll reveal-delay-3">
+                <div class="w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center text-orange-400 text-xl">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold">Service</h4>
+                    <p class="text-sm text-gray-500">Teknisi Pro & Cepat</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="lokasi" class="bg-black/40 border-t border-white/5 px-6 py-20 mt-10 footer-animate">
+        <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16">
+            <div class="footer-animate reveal-delay-1">
+                <h2 class="text-4xl font-bold mb-8 leading-tight">Hubungi Kami <br>& Kunjungi Store.</h2>
+                <div class="space-y-6">
+                    <div class="flex gap-4">
+                        <div class="text-blue-500 text-xl mt-1"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <p class="text-white font-bold text-lg mb-1 tracking-wide">Indah Phone Bangsri</p>
+                            <p class="text-gray-400 leading-relaxed text-sm">
+                                FQH9+F84, Jl. Pramuka, RT.03/RW.07, Krsak, Bangsri,<br>
+                                Kec. Bangsri, Kabupaten Jepara, Jawa Tengah 59453
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 border-t border-white/5 space-y-4 text-sm">
+                        <a href="mailto:vzjshsusgr7667@gmail.com" class="flex items-center gap-4 text-gray-400 hover:text-white transition group">
+                            <span class="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-blue-600 transition"><i class="fas fa-envelope"></i></span>
+                            vzjshsusgr7667@gmail.com
+                        </a>
+                        <button onclick="waChat('Halo Indah Phone, saya menghubungi dari website.')" class="flex items-center gap-4 text-gray-400 hover:text-white transition group bg-transparent border-none w-full text-left">
+                            <span class="w-10 h-10 rounded-full glass flex items-center justify-center group-hover:bg-green-600 transition"><i class="fab fa-whatsapp text-lg"></i></span>
+                            085176892431
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-[2.5rem] overflow-hidden h-80 border border-white/10 relative group shadow-2xl footer-animate reveal-delay-2">
+                <iframe 
+                    width="100%" 
+                    height="100%" 
+                    frameborder="0" 
+                    scrolling="no" 
+                    marginheight="0" 
+                    marginwidth="0" 
+                    style="border:0; filter: grayscale(1) invert(0.9) contrast(1.2);"
+                    src="https://maps.google.com/maps?q=Jl.%20Pramuka%20RT.03%20RW.07%20Bangsri%20Jepara%20Indah%20Phone&t=&z=16&ie=UTF8&iwloc=&output=embed">
+                </iframe>
+                <div class="absolute inset-0 bg-blue-600/5 pointer-events-none group-hover:opacity-0 transition"></div>
+                <a href="https://www.google.com/maps/search/?api=1&query=Indah+Phone+Bangsri+Jl+Pramuka" target="_blank" class="btn-glow absolute bottom-6 right-6 bg-white text-black px-6 py-3 rounded-2xl text-xs font-bold shadow-2xl hover:bg-blue-600 hover:text-white transition flex items-center gap-2">
+                    <i class="fas fa-location-arrow"></i> PETUNJUK ARAH
+                </a>
+            </div>
+        </div>
+        
+        <div class="text-center mt-24 text-[10px] text-gray-600 uppercase tracking-[0.3em] font-bold footer-animate reveal-delay-3">
+            &copy; 2026 Indah Phone • Terpercaya di Jepara • Build with Wildan
+        </div>
+    </footer>
+
+    <!-- JavaScript Functions -->
+    <script>
+        // === KONFIGURASI NOMOR WA ===
+        const WA_NUMBER = "6285176892431"; // Ganti jika perlu
+
+        // === FUNGSI UTAMA: Buka WhatsApp dengan pesan ===
+        function openWhatsApp(message) {
+            const url = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(message)}`;
+            showToast("Membuka WhatsApp...");
+            setTimeout(() => {
+                window.open(url, '_blank');
+            }, 800);
+        }
+
+        // === FUNGSI KHUSUS: Chat umum ===
+        function waChat(message) {
+            openWhatsApp(message);
+        }
+
+        // === FUNGSI KHUSUS: Inquiry berdasarkan topik ===
+        function waInquiry(topik) {
+            const messages = {
+                'katalog': 'Halo Indah Phone, saya tertarik melihat katalog HP yang tersedia. Bisa dikirimkan daftar stok terbaru?',
+                'tukar-tambah': 'Halo, saya mau estimasi harga tukar tambah HP. Apa yang perlu saya siapkan?',
+                'iPhone Series': 'Halo, saya tertarik dengan iPhone Series. Bisa info stok, harga, dan kondisi unit yang tersedia?',
+                'Android': 'Halo, saya tertarik dengan HP Android. Bisa info stok, harga, dan merek yang tersedia?',
+                'garansi': 'Halo, mau tanya detail garansi tokonya bagaimana? Apa saja yang dicover?',
+                'service': 'Halo, mau tanya jasa service HP-nya. Untuk kerusakan [sebutkan kerusakan], kira-kira biayanya berapa?'
+            };
+            openWhatsApp(messages[topik] || `Halo, saya mau tanya tentang ${topik}.`);
+        }
+
+        // === FUNGSI: Scroll halus ke section ===
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // === FUNGSI: Toast Notification ===
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+
+        // === ANIMASI SCROLL REVEAL ===
+        document.addEventListener('DOMContentLoaded', function() {
+            const revealElements = document.querySelectorAll('.reveal-on-scroll');
+            const revealObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+            revealElements.forEach(el => revealObserver.observe(el));
+
+            const footerElements = document.querySelectorAll('.footer-animate');
+            const footerObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            footerElements.forEach(el => footerObserver.observe(el));
+
+            // Parallax effect untuk hero blob
+            const heroBlob = document.querySelector('.absolute.bg-blue-600\\/10');
+            if (heroBlob) {
+                window.addEventListener('scroll', () => {
+                    const scrolled = window.pageYOffset;
+                    heroBlob.style.transform = `translate(-50%, ${scrolled * 0.2}px)`;
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
